@@ -7,6 +7,7 @@
                     <catalog_media_url_format_custom></catalog_media_url_format_custom>
                     <catalog_media_url_format_custom_imgproxy_source_type>url</catalog_media_url_format_custom_imgproxy_source_type>
                     <catalog_media_url_format_custom_imgproxy_resize>fit</catalog_media_url_format_custom_imgproxy_resize>
+                    <catalog_media_url_format_custom_imgproxy_all_media>0</catalog_media_url_format_custom_imgproxy_all_media>
                 </url>
             </web>
         </catalog>

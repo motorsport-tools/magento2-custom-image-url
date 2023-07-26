@@ -54,7 +54,7 @@ class UrlConverter
             $mediaUrl = $matches[0];
             
             $storeId = $this->_storeManager->getStore()->getId();
-            $baseMediaUrl = $this->helper->getBaseMediaUrl($storeId);
+            $baseMediaUrl = $this->helper->getMediaBaseUrl($storeId);
 
             if( str_contains( $mediaUrl, $baseMediaUrl ) ) {
                 $url = parse_url($mediaUrl);
@@ -73,7 +73,7 @@ class UrlConverter
                 }
 
                 if ($customType === CustomConfig::TYPE_IMGPROXY) {
-                    return $this->getImgProxyUrl($mediaUrl, $params);
+                    return $this->helper->getImgProxyUrl($mediaUrl, $params);
                 }
             } 
             return $mediaUrl;

@@ -26,6 +26,7 @@ class CustomConfig
     public const XML_PATH_CATALOG_MEDIA_URL_FORMAT_CUSTOM_IMGPROXY_SOURCE_TYPE = 'web/url/catalog_media_url_format_custom_imgproxy_source_type';
     public const XML_PATH_CATALOG_MEDIA_URL_FORMAT_CUSTOM_IMGPROXY_SOURCE_PREFIX = 'web/url/catalog_media_url_format_custom_imgproxy_source_prefix';
     public const XML_PATH_CATALOG_MEDIA_URL_FORMAT_CUSTOM_IMGPROXY_SOURCE_CUSTOM_URL = 'web/url/catalog_media_url_format_custom_imgproxy_source_custom_url';
+    public const XML_PATH_CATALOG_MEDIA_URL_FORMAT_CUSTOM_IMGPROXY_ALL_MEDIA = 'web/url/catalog_media_url_format_custom_imgproxy_all_media';
 
     public const TYPE_DEFAULT = 'default';
     public const TYPE_PATTERN = 'pattern';
@@ -144,6 +145,14 @@ class CustomConfig
             ScopeInterface::SCOPE_STORE,
             $storeId
         );
+    }
+
+    public function getAllMedia($storeId = null) {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_CATALOG_MEDIA_URL_FORMAT_CUSTOM_IMGPROXY_ALL_MEDIA,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?: 0;
     }
 
 }

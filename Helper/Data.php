@@ -148,9 +148,6 @@ class Data extends AbstractHelper
             $path = '/g:'. $opts['gravity'] . "/" . $encoded_url . "." . $opts['extension'];
         }
 
-        $encodedUrl = rtrim(strtr(base64_encode($sourceUrl), '+/', '-_'), '=');
-        $path = "/resize:{$resize}:$width:$height/{$encodedUrl}.{$extension}";
-
         // Sign the URL
         if (strlen($opts['key']) > 0 && strlen($opts['salt']) > 0) {
             $path = $this->signImgproxyPath($path, $opts);

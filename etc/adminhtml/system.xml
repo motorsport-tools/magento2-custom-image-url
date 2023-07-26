@@ -81,6 +81,14 @@
                     </depends>
                     <comment><![CDATA[Enter a custom URL to proxy.]]></comment>
                 </field>
+                <field id="catalog_media_url_format_custom_imgproxy_all_media" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="0">
+                    <label>Imgproxy All Media?</label>
+                    <depends>
+                        <field id="catalog_media_url_format_custom_type">imgproxy</field>
+                    </depends>
+                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                     <comment><![CDATA[Pass all Media through Imgproxy - any image added in the cms and is called from the base media directory]]></comment>
+                </field>
             </group>
         </section>
     </system>
