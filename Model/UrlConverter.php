@@ -44,38 +44,37 @@ class UrlConverter
         if ($customType === CustomConfig::TYPE_DEFAULT) {
             return $content;
         }
+        $storeId = $this->_storeManager->getStore()->getId();
+        $baseMediaUrl = $this->helper->getMediaBaseUrl($storeId);
 
-        $pattern = '/(http)?s?:?(\/\/[^"\']*\.(?:png|jpg|jpeg|gif))/';
-
+        //$pattern = '/(http)?s?:?(\/\/[^"\']*\.(?:png|jpg|jpeg|gif))/';
+        $pattern = '/(('.preg_quote( $baseMediaUrl, '/' ).')[^"\']*\.(?:png|jpg|jpeg|gif))/';
+        $logger->info($pattern);
         $content = preg_replace_callback($pattern, function ($matches) {
 
             $params = array();
 
             $mediaUrl = $matches[0];
             
-            $storeId = $this->_storeManager->getStore()->getId();
-            $baseMediaUrl = $this->helper->getMediaBaseUrl($storeId);
+            $url = parse_url($mediaUrl);
+            $filePath = $this->_directoryList->getRoot().'/pub'.$url['path'];
 
-            if( str_contains( $mediaUrl, $baseMediaUrl ) ) {
-                $url = parse_url($mediaUrl);
-                $filePath = $this->_directoryList->getRoot().'/pub'.$url['path'];
-
-                $imageSize = (file_exists($filePath))? getimagesize($filePath) : [ 0,  0 ];
+            $imageSize = (file_exists($filePath))? getimagesize($filePath) : [ 0,  0 ];
                 
-                $params['file_path'] = $url['path'];
-                $params['width'] = $imageSize[1];
-                $params['height'] = $imageSize[0];
+            $params['file_path'] = $url['path'];
+            $params['width'] = $imageSize[1];
+            $params['height'] = $imageSize[0];
                 
 
-                $customType = $this->helper->getCustomUrlType();
-                if ($customType === CustomConfig::TYPE_PATTERN) {
-                    return $this->helper->getCustomUrlFromPattern($mediaUrl, $params);
-                }
+            $customType = $this->helper->getCustomUrlType();
+            if ($customType === CustomConfig::TYPE_PATTERN) {
+                return $this->helper->getCustomUrlFromPattern($mediaUrl, $params);
+            }
 
-                if ($customType === CustomConfig::TYPE_IMGPROXY) {
-                    return $this->helper->getImgProxyUrl($mediaUrl, $params);
-                }
-            } 
+            if ($customType === CustomConfig::TYPE_IMGPROXY) {
+                return $this->helper->getImgProxyUrl($mediaUrl, $params);
+            }
+            
             return $mediaUrl;
         }, $content);
 
