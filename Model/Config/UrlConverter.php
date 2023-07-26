@@ -4,9 +4,7 @@ namespace Fruitcake\CustomImageUrl\Model;
 
 use Fruitcake\CustomImageUrl\Helper\Data;
 use Fruitcake\CustomImageUrl\Model\Config\CustomConfig;
-use Magento\Catalog\Model\Config\CatalogMediaConfig;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 
 class UrlConverter
@@ -15,8 +13,6 @@ class UrlConverter
     /** @var CustomConfig  */
     private $customConfig;
 
-    /** @var CatalogMediaConfig  */
-    private $catalogMediaConfig;
     
     /** @var StoreManagerInterface  */
     private $storeManager;
@@ -28,14 +24,12 @@ class UrlConverter
     private $directoryList;
 
     public function __construct(
-        CatalogMediaConfig $catalogMediaConfig,
         CustomConfig $customConfig,
         StoreManagerInterface $storeManager,
         Data $helper,
         DirectoryList $directoryList
     )
     {
-        $this->catalogMediaConfig = $catalogMediaConfig;
         $this->customConfig = $customConfig;
         $this->_storeManager = $storeManager;
         $this->helper = $helper;
@@ -44,7 +38,7 @@ class UrlConverter
 
     public function changeContent($content) {
 
-        $customType = $this->getCustomUrlType();
+        $customType = $this->helper->getCustomUrlType();
 
         // No action required, just use the default URL
         if ($customType === CustomConfig::TYPE_DEFAULT) {
@@ -60,7 +54,7 @@ class UrlConverter
             $mediaUrl = $matches[0];
             
             $storeId = $this->_storeManager->getStore()->getId();
-            $baseMediaUrl = $this->getBaseMediaUrl($storeId);
+            $baseMediaUrl = $this->helper->getBaseMediaUrl($storeId);
 
             if( str_contains( $mediaUrl, $baseMediaUrl ) ) {
                 $url = parse_url($mediaUrl);
@@ -73,7 +67,7 @@ class UrlConverter
                 $params['height'] = $imageSize[0];
                 
 
-                $customType = $this->getCustomUrlType();
+                $customType = $this->helper->getCustomUrlType();
                 if ($customType === CustomConfig::TYPE_PATTERN) {
                     return $this->helper->getCustomUrlFromPattern($mediaUrl, $params);
                 }
@@ -81,9 +75,7 @@ class UrlConverter
                 if ($customType === CustomConfig::TYPE_IMGPROXY) {
                     return $this->getImgProxyUrl($mediaUrl, $params);
                 }
-            }
-
-            
+            } 
             return $mediaUrl;
         }, $content);
 
