@@ -125,36 +125,61 @@ class Data extends AbstractHelper
             $sourceUrl = $imageUrl;
         }
 
+        $opts = [
+            'proxy_url' => rtrim($this->customConfig->getImgproxyHost(), '/'),
+            'gravity' => 'no',
+            'extension' => 'webp',
+            'key' => $this->customConfig->getImgproxyKey(),
+            'salt' => $this->customConfig->getImgproxySalt(),
+            'height' => ($params['width']) ? $params['width'] : 0,
+            'width' => ($params['height']) ? $params['height'] : 0,
+            'resize' => $this->customConfig->getImgproxyResize(),
+            'enlarge' => '0',
+        ];
+
+        $encoded_url = base64_encode( $sourceUrl );
+        $encoded_url = str_replace("=", "", $encoded_url); 
+        $encoded_url = str_replace('/', '_', $encoded_url); 
+        $encoded_url = str_replace('+', '-', $encoded_url); 
+
+        if( $opts['height'] > 0 && $opts['width'] > 0 ) {
+            $path = "/rs:" . $opts['resize'] . ":" . $opts['width'] . ":" . $opts['height'] . ":" .$opts['enlarge'].'/g:'. $opts['gravity'] . "/" . $encoded_url . "." . $opts['extension'];
+        } else {
+            $path = '/g:'. $opts['gravity'] . "/" . $encoded_url . "." . $opts['extension'];
+        }
+
         $encodedUrl = rtrim(strtr(base64_encode($sourceUrl), '+/', '-_'), '=');
         $path = "/resize:{$resize}:$width:$height/{$encodedUrl}.{$extension}";
 
         // Sign the URL
-        $key = $this->customConfig->getImgproxyKey();
-        $salt = $this->customConfig->getImgproxySalt();
-        if (strlen($key) > 0 && strlen($salt) > 0) {
-            $path = $this->signImgproxyPath($path, $key, $salt);
+        if (strlen($opts['key']) > 0 && strlen($opts['salt']) > 0) {
+            $path = $this->signImgproxyPath($path, $opts);
         } else {
             $path = '/insecure' . $path;
         }
-
-        return rtrim($this->customConfig->getImgproxyHost(), '/') . $path;
+        return $opts['proxy_url'] .'/'. $path;
     }
 
-    private function signImgproxyPath(string $path, string $key, string $salt): string
+    private function signImgproxyPath(string $path, array $opts): string
     {
-        $keyBin = pack("H*" , $key);
-        if(empty($keyBin)) {
+        $key = hex2bin($opts['key']);
+        if(empty($key)) {
             throw new \RuntimeException('Key expected to be hex-encoded string');
         }
 
-        $saltBin = pack("H*" , $salt);
-        if(empty($saltBin)) {
+        $salt = hex2bin($opts['salt']);
+        if(empty($salt)) {
             throw new \RuntimeException('Salt expected to be hex-encoded string');
         }
 
-        $signature = rtrim(strtr(base64_encode(hash_hmac('sha256', $saltBin.$path, $keyBin, true)), '+/', '-_'), '=');
+        $hmac = hash_hmac('sha256', $salt . $path, $key, true);
+        $hmac = base64_encode($hmac);
 
-        return sprintf("/%s%s", $signature, $path);
+        $hmac = str_replace("=", "", $hmac);
+        $hmac = str_replace('/', '_', $hmac);
+        $hmac = str_replace('+', '-', $hmac);
+
+        return $hmac . $path;        
     }
 
     /**
@@ -162,7 +187,7 @@ class Data extends AbstractHelper
      *
      * @return string|null
      */
-    private function getCustomUrlType($storeId = null)
+    public function getCustomUrlType($storeId = null)
     {
         // When Dynamic hashing is disabled, return false
         if ($this->catalogMediaConfig->getMediaUrlFormat(ScopeInterface::SCOPE_STORE, $storeId) !== CatalogMediaConfig::IMAGE_OPTIMIZATION_PARAMETERS) {
@@ -177,7 +202,7 @@ class Data extends AbstractHelper
         return $this->storeManager->getStore($storeId)->getBaseUrl(UrlInterface::URL_TYPE_LINK);
     }
 
-    private function getMediaBaseUrl($storeId = null)
+    public function getMediaBaseUrl($storeId = null)
     {
         return $this->storeManager->getStore($storeId)->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
     }
