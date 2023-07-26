@@ -3,7 +3,14 @@
 Magento 2.4 has the option to set a dynamic URL (General -> Web -> Url options). 
 This module adds an extra option to define the format of the URL.
 
+## Additions
+ - Added in support to pass all Magento Media front end files through ImageProxy, with enable/disable option in config.
+ - Fixed ImageProxy URL generation
+ - Now Converts all to WebP.
+   
 ## Install
+
+Add custom repository then:
 
 ```
 composer require fruitcake/magento2-custom-image-url
