@@ -49,7 +49,7 @@ class UrlConverter
 
         //$pattern = '/(http)?s?:?(\/\/[^"\']*\.(?:png|jpg|jpeg|gif))/';
         $pattern = '/(('.preg_quote( $baseMediaUrl, '/' ).')[^"\']*\.(?:png|jpg|jpeg|gif))/';
-        $logger->info($pattern);
+
         $content = preg_replace_callback($pattern, function ($matches) {
 
             $params = array();
